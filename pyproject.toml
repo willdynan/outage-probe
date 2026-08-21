@@ -1,0 +1,7 @@
+[project]
+name = "outage-probe"
+version = "0.1.0"
+description = "Layered incident probe with classified failure outcomes, drift-free scheduling, verbatim evidence, and a boundary-focused report."
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Will Dynan", email = "williamdynan@gmail.com" }]

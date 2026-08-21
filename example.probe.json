@@ -1,0 +1,25 @@
+{
+  "interval_seconds": 300,
+  "layers": [
+    { "name": "dns", "kind": "dns", "host": "status.example.com" },
+    { "name": "web", "kind": "http", "url": "https://status.example.com/", "expect_status": [200] },
+    {
+      "name": "canary",
+      "kind": "http",
+      "url": "https://status.example.com/api/public-config",
+      "expect_status": [200],
+      "note": "kept working during the outage; its death means the backend is getting worse"
+    },
+    {
+      "name": "auth",
+      "kind": "http_post",
+      "url": "https://status.example.com/api/login",
+      "body": "user=probe%40example.invalid&pass=not-a-real-credential",
+      "ok_pattern": "session|invalid credentials",
+      "classifiers": [
+        { "outcome": "db_alloc_failure", "pattern": "QUOTA-91|allocation pool exhausted" },
+        { "outcome": "rate_limited", "pattern": "too many attempts" }
+      ]
+    }
+  ]
+}

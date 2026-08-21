@@ -1,5 +1,7 @@
 # outage-probe
 
+![tests](https://github.com/willdynan/outage-probe/actions/workflows/tests.yml/badge.svg)
+
 The status page is green, the vendor is guessing, and your users can't
 log in. "Is it up?" was never the question. Mid-incident the questions
 that matter are: which layer is failing, did the failure mode change,

@@ -1,12 +1,24 @@
 # outage-probe
 
-A layered diagnostic probe for the question that matters during an
-incident: what recovered — not "is it up".
+The status page is green, the vendor is guessing, and your users can't
+log in. "Is it up?" was never the question. Mid-incident the questions
+that matter are: which layer is failing, did the failure mode change,
+when did recovery start, and did it hold — and an up/down monitor
+averages all four into a single useless bit.
 
-Built for outages where the status page is green and the vendor is
-guessing. The web tier serves pages while one path behind it fails on a
-specific backend error. An up/down monitor averages that into noise. This
-probe classifies it, timestamps it, and keeps the evidence.
+This probe answers them. Layers work like a differential diagnosis: DNS
+rules out resolution, a plain GET proves the front door serves, a canary
+watches the request that still works (its death means things are getting
+worse), and an auth-shaped POST with throwaway credentials exercises the
+path under suspicion. Outcomes carry a class, never a boolean — a named
+fault, a *different* fault, and a dead transport are three different
+stories. The matching slice of the response is kept verbatim, because
+that excerpt is what goes in the vendor case, and a paraphrase is not
+evidence.
+
+Rounds fire on monotonic slots that cannot drift. Each one lands as a
+line of JSONL, and the report compresses it all to what a responder
+needs: transitions, downtime, and how much weight the recovery bears.
 
 ## Quickstart
 
@@ -17,19 +29,11 @@ python3 -m outage_probe.report results.jsonl
 python3 -m outage_probe.checkin notes.jsonl "vendor CSM reached, ETA 30m"
 ```
 
-Edit example.probe.json for your incident: hosts, expected statuses, and
-the fault strings you are watching for.
+## Going deeper
 
-## Layout
+[docs/design.md](docs/design.md) walks the pieces with captured output.
+[docs/rules.md](docs/rules.md) gives every rule its reason and its test.
+[docs/lineage.md](docs/lineage.md) holds the honest limits and provenance.
 
-```
-outage_probe/layers.py   classify outcomes, keep evidence verbatim
-outage_probe/probe.py    verdicts against a baseline, drift-free slots
-outage_probe/report.py   boundaries, transitions, downtime
-outage_probe/checkin.py  operator notes on the same timeline
-```
-
-The walkthrough: [docs/design.md](docs/design.md). The rules:
-[docs/rules.md](docs/rules.md). Limits and provenance:
-[docs/lineage.md](docs/lineage.md). Distilled August 2026 from an
-incident-born original. The commit log starts at distillation.
+Born in the middle of a real outage, August 2026, because nothing on hand
+could answer "what changed". The commit log starts at the distillation.
